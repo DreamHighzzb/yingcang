@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📦 赚大钱 · 仓库管理系统</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--primary:#4f6ef7;--primary-dark:#3a56d4;--primary-light:#e8edff;--success:#2ecc71;--danger:#e74c3c;--warning:#f39c12;--gray:#95a5a6;--gray-light:#ecf0f1;--gray-dark:#2c3e50;--shadow:0 4px 20px rgba(0,0,0,.08);--radius:12px;--transition:.25s ease}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','PingFang SC',Roboto,'Helvetica Neue',sans-serif;background:#f5f7fc;color:#1e293b;min-height:100vh;padding:20px}
+.app-container{max-width:1400px;margin:0 auto}
+#appMain{display:none}#appMain.show{display:block}
+.share-only{display:none!important}
+body.share-mode .owner-only{display:none!important}
+body.share-mode .share-only{display:block!important}
+body.share-mode .share-only.flex{display:flex!important}
+body.share-mode .ie-grid{grid-template-columns:1fr!important}
+.share-banner{background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1px solid #ffe08a;border-radius:var(--radius);padding:14px 22px;margin-bottom:20px;align-items:center;gap:14px;flex-wrap:wrap;font-size:14px;color:#856404;box-shadow:var(--shadow)}
+.share-banner .grow{flex:1}
+.share-banner strong{color:#6d5100}
+.share-guard{background:#fff8e1;border:1px dashed #ffe08a;color:#856404;font-size:13px;padding:10px 16px;border-radius:8px;margin-bottom:16px}
+.app-header{background:#fff;border-radius:var(--radius);padding:20px 28px;box-shadow:var(--shadow);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px}
+.app-header h1{font-size:24px;font-weight:700;color:var(--gray-dark);display:flex;align-items:center;gap:10px}
+.app-header h1 span{background:var(--primary);color:#fff;font-size:14px;font-weight:500;padding:2px 12px;border-radius:20px}
+.header-stats{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--gray-dark)}
+.header-stats .stat-item{display:flex;align-items:center;gap:6px;background:var(--gray-light);padding:4px 16px;border-radius:20px}
+.header-stats .stat-item .num{font-weight:700;color:var(--primary)}
+.header-stats .stat-item.danger .num{color:var(--danger)}
+.header-user{display:flex;align-items:center;gap:10px;padding-left:16px;border-left:1.5px solid #edf0f5}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(79,110,247,.35)}
+.user-meta{display:flex;flex-direction:column;line-height:1.25}
+.user-meta .name{font-size:14px;font-weight:700;color:var(--gray-dark)}
+.user-meta .tip{font-size:11px;color:var(--gray)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;background:#fff;border-radius:var(--radius);padding:8px 12px;box-shadow:var(--shadow);margin-bottom:24px}
+.tabs .tab-btn{padding:10px 22px;border:none;border-radius:8px;background:transparent;font-size:15px;font-weight:500;cursor:pointer;transition:var(--transition);color:var(--gray);display:flex;align-items:center;gap:6px}
+.tabs .tab-btn:hover{background:var(--gray-light);color:var(--gray-dark)}
+.tabs .tab-btn.active{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(79,110,247,.3)}
+.panel{display:none;background:#fff;border-radius:var(--radius);padding:24px 28px;box-shadow:var(--shadow);animation:fadeIn .3s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.panel-title{font-size:20px;font-weight:600;margin-bottom:18px;color:var(--gray-dark);display:flex;align-items:center;gap:10px}
+.panel-title .badge{font-size:13px;font-weight:400;background:var(--gray-light);padding:0 12px;border-radius:20px;color:var(--gray)}
+.form-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-end;margin-bottom:18px}
+.form-group{display:flex;flex-direction:column;gap:4px;flex:1 1 160px;min-width:130px}
+.form-group label{font-size:13px;font-weight:600;color:var(--gray-dark)}
+.form-group input,.form-group select,.form-group textarea{padding:9px 14px;border:1.5px solid #dce0e8;border-radius:8px;font-size:14px;transition:var(--transition);background:#fafbfc;font-family:inherit;width:100%}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,110,247,.15);background:#fff}
+.form-group .hint{font-size:12px;color:var(--gray)}
+.btn{padding:9px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(79,110,247,.3)}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#27ae60}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#c0392b}
+.btn-warning{background:var(--warning);color:#fff}.btn-warning:hover{background:#e67e22}
+.btn-outline{background:transparent;color:var(--gray-dark);border:1.5px solid #dce0e8}.btn-outline:hover{background:var(--gray-light)}
+.btn-sm{padding:5px 14px;font-size:13px}.btn-xs{padding:3px 10px;font-size:12px;border-radius:6px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.action-link{cursor:pointer;font-weight:500;padding:4px 10px;border-radius:4px;transition:var(--transition);text-decoration:none;display:inline-block;font-size:13px;background:transparent;border:none}
+.action-link:hover{background:var(--gray-light)}
+.action-link.edit-link{color:var(--primary)}.action-link.edit-link:hover{background:var(--primary-light);text-decoration:underline}
+.action-link.delete-link{color:var(--danger)}.action-link.delete-link:hover{background:#fde8e8;text-decoration:underline}
+.table-wrap{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+table th,table td{text-align:center;padding:12px 14px}
+table th{background:var(--gray-light);color:var(--gray-dark);font-weight:600;border-bottom:2px solid #dce0e8;white-space:nowrap}
+table td{border-bottom:1px solid #edf0f5;vertical-align:middle}
+table tr:hover td{background:#f8faff}
+table .stock-low{color:var(--danger);font-weight:700}
+table .stock-normal{color:var(--gray-dark)}
+table .actions{display:flex;gap:4px;flex-wrap:wrap;align-items:center;justify-content:center}
+.toast-container{position:fixed;top:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px}
+.toast{padding:14px 20px;border-radius:var(--radius);color:#fff;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.15);animation:slideIn .35s ease;display:flex;align-items:center;gap:10px;font-size:14px}
+.toast-success{background:var(--success)}.toast-error{background:var(--danger)}.toast-warning{background:var(--warning)}.toast-info{background:var(--primary)}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:9998;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:var(--radius);padding:30px 36px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:fadeIn .3s ease}
+.modal h3{font-size:20px;margin-bottom:16px}
+.modal .btn-row{display:flex;gap:12px;margin-top:20px;justify-content:flex-end}
+.upload-zone{border:2px dashed #dce0e8;border-radius:var(--radius);padding:40px 20px;text-align:center;transition:var(--transition);cursor:pointer;background:#fafbfc}
+.upload-zone:hover{border-color:var(--primary);background:var(--primary-light)}
+.upload-zone.dragover{border-color:var(--primary);background:var(--primary-light)}
+.upload-zone input[type=file]{display:none}
+.upload-zone .icon{font-size:48px;margin-bottom:8px}
+.upload-zone p{color:var(--gray);font-size:14px}
+.search-box{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.search-box input{flex:1 1 220px;padding:9px 14px;border:1.5px solid #dce0e8;border-radius:8px;font-size:14px;background:#fafbfc;transition:var(--transition)}
+.search-box input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,110,247,.12)}
+.flex-between{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+.mt-8{margin-top:8px}.mt-16{margin-top:16px}.mb-8{margin-bottom:8px}.gap-8{gap:8px}
+.text-muted{color:var(--gray);font-size:13px}
+.text-center{text-align:center}
+.tag{display:inline-block;padding:2px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.tag-in{background:#d4edda;color:#155724}.tag-out{background:#f8d7da;color:#721c24}.tag-warn{background:#fff3cd;color:#856404}
+.w-full{width:100%}
+.auth-screen{position:fixed;inset:0;background:linear-gradient(135deg,#4f6ef7 0%,#3a56d4 45%,#22305c 100%);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10000;overflow-y:auto}
+.auth-screen.hidden{display:none}
+.auth-screen::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 15% 20%,rgba(255,255,255,.18),transparent 42%),radial-gradient(circle at 85% 80%,rgba(255,255,255,.12),transparent 40%);pointer-events:none}
+.auth-card{position:relative;background:#fff;border-radius:18px;padding:36px 40px 32px;width:100%;max-width:420px;box-shadow:0 28px 80px rgba(0,0,0,.32);animation:authPop .4s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes authPop{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.auth-brand{text-align:center;font-size:26px;font-weight:700;color:var(--gray-dark);display:flex;align-items:center;justify-content:center;gap:8px}
+.auth-brand span{background:var(--primary);color:#fff;font-size:12px;font-weight:600;padding:2px 10px;border-radius:20px;transform:translateY(-6px)}
+.auth-sub{text-align:center;color:var(--gray);font-size:13px;margin:6px 0 22px}
+.auth-tabs{display:flex;background:var(--gray-light);border-radius:10px;padding:4px;margin-bottom:22px}
+.auth-tab{flex:1;padding:9px;border:none;background:transparent;border-radius:8px;font-size:14px;font-weight:600;color:var(--gray);cursor:pointer;transition:var(--transition);font-family:inherit}
+.auth-tab.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.auth-form{display:none}.auth-form.active{display:block;animation:fadeIn .25s ease}
+.auth-form .form-group{margin-bottom:14px}
+.auth-error{color:var(--danger);font-size:13px;font-weight:500;min-height:18px;margin-bottom:6px}
+.auth-footer{margin-top:18px;text-align:center;font-size:12px;color:var(--gray);line-height:1.7}
+.auth-switch{color:var(--primary);cursor:pointer;font-weight:600;text-decoration:none}
+.auth-switch:hover{text-decoration:underline}
+.loading-mask{position:fixed;inset:0;background:rgba(255,255,255,.6);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:99997;font-size:16px;color:var(--primary);font-weight:600}
+.loading-mask.show{display:flex}
+.view-other-box{margin-top:26px;padding-top:22px;border-top:1px dashed #dce0e8}
+.view-other-box h4{font-size:16px;margin-bottom:8px;color:var(--gray-dark)}
+.view-other-box .hint{font-size:13px;color:var(--gray);margin-bottom:14px;line-height:1.7}
+.view-other-row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+.view-other-row input{flex:1 1 320px;padding:9px 14px;border:1.5px solid #dce0e8;border-radius:8px;font-size:14px;background:#fafbfc;transition:var(--transition)}
+.view-other-row input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,110,247,.15);background:#fff}
+
+/* ===== 可输入下拉选择器 ===== */
+.combo{position:relative;width:100%}
+.combo input.combo-input{padding-right:28px;cursor:text}
+.combo .combo-arrow{position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:#aab2bf;font-size:11px}
+.combo .combo-panel{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #dce0e8;border-top:none;border-radius:0 0 8px 8px;max-height:240px;overflow-y:auto;z-index:50;box-shadow:0 8px 20px rgba(0,0,0,.08);display:none}
+.combo.open .combo-panel{display:block}
+.combo .combo-item{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;color:var(--gray-dark)}
+.combo .combo-item:hover,.combo .combo-item.active{background:var(--primary-light);color:var(--primary-dark)}
+.combo .combo-item .c-stock{color:var(--gray);font-size:12px}
+.combo .combo-empty{padding:10px 12px;font-size:12px;color:var(--gray);text-align:center}
+
+/* ===== 排序按钮 ===== */
+.sort-btn{background:transparent;border:none;cursor:pointer;font-size:11px;color:#aab2bf;padding:0 0 0 4px;line-height:1;vertical-align:middle;transition:var(--transition);border-radius:4px}
+.sort-btn:hover{color:var(--primary);background:var(--primary-light)}
+.sort-btn.active{color:var(--primary);font-weight:700}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{background:#e3e9f6}
+
+/* ===== 分页 ===== */
+.pager{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px;font-size:13px;color:var(--gray-dark)}
+.pager .pager-info{color:var(--gray)}
+.pager .pager-btns{display:flex;gap:6px;flex-wrap:wrap}
+.pager button{padding:5px 12px;border:1.5px solid #dce0e8;background:#fff;border-radius:6px;font-size:13px;cursor:pointer;transition:var(--transition);color:var(--gray-dark)}
+.pager button:hover:not(:disabled){border-color:var(--primary);color:var(--primary)}
+.pager button:disabled{opacity:.45;cursor:not-allowed}
+.pager button.active{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:700}
+.pager select{padding:5px 10px;border:1.5px solid #dce0e8;border-radius:6px;font-size:13px;background:#fff}
+
+@media (max-width:768px){
+body{padding:12px}
+.app-header{padding:16px 20px;flex-direction:column;align-items:flex-start;gap:12px}
+.app-header h1{font-size:20px}
+.header-stats{font-size:13px;gap:10px}
+.header-stats .stat-item{padding:2px 12px}
+.header-user{padding-left:0;border-left:none;width:100%;justify-content:space-between}
+.tabs{padding:6px 8px;gap:4px}
+.tabs .tab-btn{padding:8px 14px;font-size:13px}
+.panel{padding:16px 18px}
+.form-group{flex:1 1 100%;min-width:100%}
+.modal{padding:20px 18px}
+.flex-between{flex-direction:column;align-items:stretch}
+table{font-size:13px}
+table th,table td{padding:8px 10px}
+.action-link{padding:4px 6px;font-size:12px}
+.auth-card{padding:26px 22px 24px}
+.auth-brand{font-size:22px}
+.ie-grid{grid-template-columns:1fr!important}
+.view-other-row input{flex:1 1 100%}
+}
+@media (max-width:480px){
+.tabs .tab-btn{font-size:12px;padding:6px 10px}
+.btn{padding:7px 16px;font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 登录/注册 ============ -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-brand">📦 赚大钱 <span>v2.6</span></div>
+    <div class="auth-sub">仓库管理系统 · 服务端账号体系</div>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" data-auth="login">🔑 登录</button>
+      <button type="button" class="auth-tab" data-auth="register">✨ 注册</button>
+    </div>
+    <form class="auth-form active" id="loginForm" autocomplete="on">
+      <div class="form-group"><label>用户名</label>
+        <input type="text" id="loginUsername" placeholder="请输入用户名" autocomplete="username"></div>
+      <div class="form-group"><label>密码</label>
+        <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password"></div>
+      <div class="auth-error" id="loginError"></div>
+      <button type="submit" class="btn btn-primary w-full" id="loginBtn">登 录</button>
+    </form>
+    <form class="auth-form" id="registerForm" autocomplete="on">
+      <div class="form-group"><label>用户名</label>
+        <input type="text" id="regUsername" placeholder="2-20 位，中文/字母/数字/下划线" autocomplete="username"></div>
+      <div class="form-group"><label>密码</label>
+        <input type="password" id="regPassword" placeholder="至少 6 位" autocomplete="new-password"></div>
+      <div class="form-group"><label>确认密码</label>
+        <input type="password" id="regPassword2" placeholder="请再次输入密码" autocomplete="new-password"></div>
+      <div class="auth-error" id="registerError"></div>
+      <button type="submit" class="btn btn-success w-full" id="registerBtn">注 册</button>
+    </form>
+    <div class="auth-footer">
+      <span id="authFooterText">还没有账号？</span>
+      <a class="auth-switch" id="authFooterLink" onclick="switchAuthTab('register')">立即注册</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 主应用 ============ -->
+<div class="app-container" id="appMain">
+
+  <div class="share-banner share-only flex" id="shareBanner">
+    <span>🔗 正在查看 <strong id="shareOwnerName">—</strong> 的分享数据</span>
+    <span class="tag tag-warn">只读模式 · 仅可查看与导出</span>
+    <span class="grow"></span>
+    <button class="btn btn-outline btn-sm" onclick="exitShareMode()">🚪 退出查看</button>
+  </div>
+
+  <header class="app-header">
+    <h1>📦 赚大钱 <span>v2.6</span></h1>
+    <div class="header-stats">
+      <div class="stat-item">📦 商品 <span class="num" id="statProducts">0</span></div>
+      <div class="stat-item">📥 总入库 <span class="num" id="statInbound">0</span></div>
+      <div class="stat-item">📤 总出库 <span class="num" id="statOutbound">0</span></div>
+      <div class="stat-item danger">⚠️ 低库存 <span class="num" id="statLowStock">0</span></div>
+    </div>
+    <div class="header-user owner-only">
+      <div class="user-avatar" id="userAvatar">U</div>
+      <div class="user-meta">
+        <span class="name" id="userNameDisplay">—</span>
+        <span class="tip">当前登录账号</span>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="handleLogout()">🚪 退出</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabNav">
+    <button class="tab-btn active" data-tab="tabProducts">📋 商品管理</button>
+    <button class="tab-btn" data-tab="tabInbound">📥 入库登记</button>
+    <button class="tab-btn" data-tab="tabOutbound">📤 出库登记</button>
+    <button class="tab-btn" data-tab="tabStock">📊 库存查看</button>
+    <button class="tab-btn" data-tab="tabImportExport">📁 导入 / 导出</button>
+    <button class="tab-btn owner-only" data-tab="tabShare">🔗 数据分享</button>
+  </nav>
+
+  <!-- 商品管理 -->
+  <section class="panel active" id="tabProducts">
+    <div class="flex-between">
+      <div class="panel-title">📋 商品管理 <span class="badge">增删改查</span></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;" class="owner-only">
+        <button class="btn btn-success" onclick="document.getElementById('priceImportInput').click()">📤 导入商品</button>
+        <input type="file" id="priceImportInput" accept=".xlsx,.xls" style="display:none;" onchange="handlePriceImport(event)">
+        <button class="btn btn-primary" onclick="showAddProductModal()">➕ 添加商品</button>
+        <button class="btn btn-danger" onclick="clearProducts()">🧹 清空全部商品</button>
+      </div>
+    </div>
+    <div class="share-guard share-only">🔒 只读模式：你只能查看与导出数据，无法新增、修改或删除。</div>
+    <div class="search-box">
+      <input type="text" id="productSearch" placeholder="🔍 搜索商品名称..." oninput="pageState.products.page=1;renderProducts()">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:70px;">序号</th>
+          <th>商品名</th>
+          <th>单位</th>
+          <th class="sortable" data-sort-table="products" data-sort-key="minStock">最低库存 <span class="sort-btn" data-sort-table="products" data-sort-key="minStock">↕</span></th>
+          <th class="owner-only" style="min-width:120px;">操作</th>
+        </tr></thead>
+        <tbody id="productTableBody">
+          <tr><td colspan="5" class="text-center text-muted">暂无商品，请添加或导入</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pager" id="productPager"></div>
+  </section>
+
+  <!-- 入库登记 -->
+  <section class="panel" id="tabInbound">
+    <div class="flex-between">
+      <div class="panel-title">📥 入库登记</div>
+      <button class="btn btn-danger btn-sm owner-only" onclick="clearInboundRecords()">🧹 清空全部入库记录</button>
+    </div>
+    <div class="form-row owner-only">
+      <div class="form-group">
+        <label>选择商品 *</label>
+        <div class="combo" id="inboundProductCombo">
+          <input type="text" class="combo-input" id="inboundProductInput" placeholder="输入关键字快速筛选商品..." autocomplete="off">
+          <span class="combo-arrow">▼</span>
+          <div class="combo-panel" id="inboundProductPanel"></div>
+        </div>
+        <select id="inboundProduct" style="display:none;"></select>
+      </div>
+      <div class="form-group"><label>入库数量 *</label>
+        <input type="number" id="inboundQty" placeholder="输入数量" min="1" step="1"></div>
+      <div class="form-group"><label>单价 (元)</label>
+        <input type="number" id="inboundPrice" placeholder="0.00" min="0" step="0.01" value="0"></div>
+      <div class="form-group" style="flex:2;"><label>备注</label>
+        <input type="text" id="inboundRemark" placeholder="可选备注信息"></div>
+      <div class="form-group" style="flex:0 0 auto;">
+        <button class="btn btn-success" onclick="handleInbound()">✅ 确认入库</button></div>
+    </div>
+    <div class="share-guard share-only">🔒 只读模式：仅可查看历史入库记录。</div>
+    <hr style="margin:20px 0;border:none;border-top:1px solid #edf0f5;" class="owner-only">
+    <div class="flex-between">
+      <span style="font-weight:600;">📋 最近入库记录</span>
+      <button class="btn btn-outline btn-sm" onclick="refreshAll()">🔄 刷新</button>
+    </div>
+    <div class="search-box mt-8">
+      <input type="text" id="inboundSearch" placeholder="🔍 搜索商品名称..." oninput="pageState.inbound.page=1;renderInboundRecords()">
+      <span class="text-muted" id="inboundSearchTip" style="font-size:13px;"></span>
+    </div>
+    <div class="table-wrap mt-8">
+      <table>
+        <thead><tr>
+          <th style="width:70px;">序号</th>
+          <th>商品</th>
+          <th class="sortable" data-sort-table="inbound" data-sort-key="quantity">数量 <span class="sort-btn" data-sort-table="inbound" data-sort-key="quantity">↕</span></th>
+          <th class="sortable" data-sort-table="inbound" data-sort-key="price">单价 <span class="sort-btn" data-sort-table="inbound" data-sort-key="price">↕</span></th>
+          <th class="sortable" data-sort-table="inbound" data-sort-key="amount">金额 <span class="sort-btn" data-sort-table="inbound" data-sort-key="amount">↕</span></th>
+          <th class="sortable" data-sort-table="inbound" data-sort-key="time">时间 <span class="sort-btn" data-sort-table="inbound" data-sort-key="time">↕</span></th>
+          <th>备注</th>
+          <th class="owner-only">操作</th>
+        </tr></thead>
+        <tbody id="inboundTableBody">
+          <tr><td colspan="8" class="text-center text-muted">暂无入库记录</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pager" id="inboundPager"></div>
+  </section>
+
+  <!-- 出库登记 -->
+  <section class="panel" id="tabOutbound">
+    <div class="flex-between">
+      <div class="panel-title">📤 出库登记</div>
+      <button class="btn btn-danger btn-sm owner-only" onclick="clearOutboundRecords()">🧹 清空全部出库记录</button>
+    </div>
+    <div class="form-row owner-only">
+      <div class="form-group">
+        <label>选择商品 *</label>
+        <div class="combo" id="outboundProductCombo">
+          <input type="text" class="combo-input" id="outboundProductInput" placeholder="输入关键字快速筛选商品..." autocomplete="off">
+          <span class="combo-arrow">▼</span>
+          <div class="combo-panel" id="outboundProductPanel"></div>
+        </div>
+        <select id="outboundProduct" style="display:none;"></select>
+      </div>
+      <div class="form-group"><label>出库数量 *</label>
+        <input type="number" id="outboundQty" placeholder="输入数量" min="1" step="1"></div>
+      <div class="form-group"><label>单价 (元)</label>
+        <input type="number" id="outboundPrice" placeholder="0.00" min="0" step="0.01" value="0"></div>
+      <div class="form-group" style="flex:2;"><label>备注</label>
+        <input type="text" id="outboundRemark" placeholder="可选备注信息"></div>
+      <div class="form-group" style="flex:0 0 auto;">
+        <button class="btn btn-danger" onclick="handleOutbound()">✅ 确认出库</button></div>
+    </div>
+    <div class="share-guard share-only">🔒 只读模式：仅可查看历史出库记录。</div>
+    <hr style="margin:20px 0;border:none;border-top:1px solid #edf0f5;" class="owner-only">
+    <div class="flex-between">
+      <span style="font-weight:600;">📋 最近出库记录</span>
+      <button class="btn btn-outline btn-sm" onclick="refreshAll()">🔄 刷新</button>
+    </div>
+    <div class="search-box mt-8">
+      <input type="text" id="outboundSearch" placeholder="🔍 搜索商品名称..." oninput="pageState.outbound.page=1;renderOutboundRecords()">
+      <span class="text-muted" id="outboundSearchTip" style="font-size:13px;"></span>
+    </div>
+    <div class="table-wrap mt-8">
+      <table>
+        <thead><tr>
+          <th style="width:70px;">序号</th>
+          <th>商品</th>
+          <th class="sortable" data-sort-table="outbound" data-sort-key="quantity">数量 <span class="sort-btn" data-sort-table="outbound" data-sort-key="quantity">↕</span></th>
+          <th class="sortable" data-sort-table="outbound" data-sort-key="price">单价 <span class="sort-btn" data-sort-table="outbound" data-sort-key="price">↕</span></th>
+          <th class="sortable" data-sort-table="outbound" data-sort-key="amount">金额 <span class="sort-btn" data-sort-table="outbound" data-sort-key="amount">↕</span></th>
+          <th class="sortable" data-sort-table="outbound" data-sort-key="time">时间 <span class="sort-btn" data-sort-table="outbound" data-sort-key="time">↕</span></th>
+          <th>备注</th>
+          <th class="owner-only">操作</th>
+        </tr></thead>
+        <tbody id="outboundTableBody">
+          <tr><td colspan="8" class="text-center text-muted">暂无出库记录</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pager" id="outboundPager"></div>
+  </section>
+
+  <!-- 库存查看 -->
+  <section class="panel" id="tabStock">
+    <div class="panel-title">📊 库存查看 <span class="badge">实时库存</span></div>
+    <div class="search-box">
+      <input type="text" id="stockSearch" placeholder="🔍 搜索商品名称..." oninput="pageState.stock.page=1;renderStock()">
+      <button class="btn btn-outline btn-sm" onclick="refreshAll()">🔄 刷新</button>
+      <span class="text-muted" style="font-size:13px;margin-left:auto;">低库存标红显示</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:70px;">序号</th>
+          <th>名称</th>
+          <th class="sortable" data-sort-table="stock" data-sort-key="stock">库存 <span class="sort-btn" data-sort-table="stock" data-sort-key="stock">↕</span></th>
+          <th class="sortable" data-sort-table="stock" data-sort-key="minStock">最低库存 <span class="sort-btn" data-sort-table="stock" data-sort-key="minStock">↕</span></th>
+          <th>单位</th>
+          <th>状态</th>
+        </tr></thead>
+        <tbody id="stockTableBody">
+          <tr><td colspan="6" class="text-center text-muted">暂无商品</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pager" id="stockPager"></div>
+  </section>
+
+  <!-- 导入/导出 -->
+  <section class="panel" id="tabImportExport">
+    <div class="panel-title">📁 导入 / 导出</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;" class="ie-grid">
+      <div class="owner-only">
+        <h4 style="margin-bottom:10px;">📤 导入 Excel</h4>
+        <p class="text-muted" style="font-size:13px;margin-bottom:12px;">
+          <strong>支持多工作表：</strong><br>
+          • <strong>商品表</strong>（名称不含“入库”“出库”）→ 新增/更新商品（名称、单位、最低库存）。<br>
+          • <strong>入库记录表</strong>（名称含“入库”）→ 追加记录，库存按流水汇总。<br>
+          • <strong>出库记录表</strong>（名称含“出库”）→ 追加记录，库存按流水汇总。
+        </p>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <div class="icon">📂</div>
+          <p><strong>点击上传</strong> 或拖拽文件到此</p>
+          <p style="font-size:12px;color:#aaa;">支持 .xlsx .xls</p>
+          <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
+        </div>
+        <div id="importResult" class="mt-8 text-muted" style="font-size:14px;"></div>
+      </div>
+      <div>
+        <h4 style="margin-bottom:10px;">📥 导出数据</h4>
+        <p class="text-muted" style="font-size:13px;margin-bottom:16px;">导出当前数据为 Excel 文件</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <button class="btn btn-primary" onclick="exportData('stock')">📊 导出库存</button>
+          <button class="btn btn-success" onclick="exportData('inbound')">📥 导出入库记录</button>
+          <button class="btn btn-danger" onclick="exportData('outbound')">📤 导出出库记录</button>
+          <button class="btn btn-warning" onclick="exportData('all')">📦 导出全部</button>
+        </div>
+        <div class="mt-16" style="background:#f8faff;padding:16px;border-radius:8px;">
+          <span style="font-weight:600;">📌 数据统计</span>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-size:14px;">
+            <span>商品总数: <strong id="exportStatProducts">0</strong></span>
+            <span>入库记录: <strong id="exportStatInbound">0</strong></span>
+            <span>出库记录: <strong id="exportStatOutbound">0</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="share-only" style="margin-top:20px;">
+      <div class="share-guard">🔒 只读模式：导入功能不可用，导出不受限制。</div>
+    </div>
+  </section>
+
+  <!-- 数据分享 -->
+  <section class="panel" id="tabShare">
+    <div class="panel-title">🔗 数据分享 <span class="badge">只读分享</span></div>
+    <div style="background:#f8faff;border-left:3px solid var(--primary);padding:14px 18px;border-radius:8px;margin-bottom:18px;font-size:13px;color:var(--gray-dark);line-height:1.9;">
+      💡 生成分享链接后，任何拿到链接的人都可以 <strong>查看</strong> 和 <strong>导出</strong> 你的数据，
+      但 <strong style="color:var(--danger);">不能</strong> 修改、添加或删除任何内容。<br>
+      你可以随时 <strong>停用</strong>、<strong>启用</strong> 或 <strong>删除</strong> 分享链接。
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:0 0 200px;"><label>有效期</label>
+        <select id="shareExpire">
+          <option value="0">永久有效</option>
+          <option value="1">1 天</option>
+          <option value="7" selected>7 天</option>
+          <option value="30">30 天</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:0 0 auto;">
+        <button class="btn btn-primary" onclick="createShare()">➕ 生成分享链接</button></div>
+      <div class="form-group" style="flex:0 0 auto;">
+        <button class="btn btn-outline" onclick="loadShares()">🔄 刷新列表</button></div>
+    </div>
+    <div class="table-wrap mt-8">
+      <table>
+        <thead><tr>
+          <th>分享链接</th><th>状态</th><th>有效期至</th><th>访问次数</th>
+          <th style="min-width:210px;">操作</th>
+        </tr></thead>
+        <tbody id="shareTableBody">
+          <tr><td colspan="5" class="text-center text-muted">还没有创建分享链接</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== 查看他人分享数据 ===== -->
+    <div class="view-other-box">
+      <h4>🔎 查看他人分享的数据</h4>
+      <div class="hint">
+        收到他人分享链接时，把<strong>分享码</strong>或<strong>完整链接</strong>粘贴到下面，点击“查看数据”即可切换到
+        <strong>只读模式</strong>浏览对方的商品、库存、入库与出库记录，并可导出。退出后回到你自己的数据。
+      </div>
+      <div class="view-other-row">
+        <input type="text" id="shareTokenInlineInput"
+               placeholder="粘贴分享码或链接，例如：a1b2c3d4e5f6... 或 http://.../?share=xxxx"
+               autocomplete="off">
+        <button class="btn btn-primary" onclick="submitShareTokenInline()">🔎 查看数据</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 商品编辑弹窗 -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <h3 id="modalTitle">➕ 添加商品</h3>
+    <input type="hidden" id="editProductId">
+    <div class="form-row">
+      <div class="form-group" style="flex:1;"><label>商品名称 *</label>
+        <input type="text" id="modalName" placeholder="如：华为Mate60"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:0 0 160px;"><label>单位 *</label>
+        <input type="text" id="modalUnit" placeholder="个/箱/件"></div>
+      <div class="form-group" style="flex:0 0 160px;"><label>最低库存</label>
+        <input type="number" id="modalMinStock" placeholder="预警值" min="0" step="1" value="5"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveProduct()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="loading-mask" id="loadingMask">⏳ 处理中...</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================== 全局状态 ================== */
+var currentUser = null;
+var appData = { products: [], inboundRecords: [], outboundRecords: [] };
+var shareToken = null;
+var shareMeta = null;
+
+/* 排序状态 */
+var sortState = {
+  products: { key: '', dir: '' },
+  inbound: { key: '', dir: '' },
+  outbound: { key: '', dir: '' },
+  stock: { key: '', dir: '' }
+};
+
+/* 分页状态 */
+var pageState = {
+  products: { page: 1, pageSize: 20 },
+  inbound:  { page: 1, pageSize: 20 },
+  outbound: { page: 1, pageSize: 20 },
+  stock:    { page: 1, pageSize: 20 }
+};
+window.pageState = pageState;
+
+/* 可输入下拉：当前打开的面板 id */
+var openComboId = null;
+
+/* ================== API 封装 ================== */
+var api = {
+  request: function(url, options){
+    options = options || {};
+    var opts = { credentials: 'include', headers: { 'Content-Type': 'application/json' } };
+    for (var k in options) opts[k] = options[k];
+    if (opts.body && typeof opts.body !== 'string') opts.body = JSON.stringify(opts.body);
+    return fetch(url, opts).catch(function(){
+      throw new Error('网络错误，请检查服务是否启动');
+    }).then(function(res){
+      var ct = res.headers.get('content-type') || '';
+      var p = ct.indexOf('application/json') >= 0
+        ? res.json().catch(function(){ return {}; })
+        : Promise.resolve({});
+      return p.then(function(data){
+        if (res.status === 401) {
+          currentUser = null;
+          showAuthScreen();
+          throw new Error(data.error || '登录已过期，请重新登录');
+        }
+        if (!res.ok) throw new Error(data.error || ('请求失败 (' + res.status + ')'));
+        return data;
+      });
+    });
+  },
+  get: function(u){ return this.request(u); },
+  post: function(u, b){ return this.request(u, { method:'POST', body:b }); },
+  put: function(u, b){ return this.request(u, { method:'PUT', body:b }); },
+  del: function(u){ return this.request(u, { method:'DELETE' }); }
+};
+
+/* ================== 工具函数 ================== */
+function showLoading(on){ document.getElementById('loadingMask').classList.toggle('show', !!on); }
+function formatTime(ts){
+  var d = new Date(ts);
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0') + ' ' +
+    String(d.getHours()).padStart(2,'0') + ':' +
+    String(d.getMinutes()).padStart(2,'0');
+}
+function escHtml(s){
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, function(m){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m];
+  });
+}
+function isShareMode(){ return !!shareToken; }
+function canViewData(){ return !!currentUser || !!shareToken; }
+
+function getShareTokenFromUrl(){
+  try { return new URLSearchParams(location.search).get('share') || null; }
+  catch(e){ return null; }
+}
+function clearShareParamFromUrl(){
+  try { history.replaceState(null, '', location.pathname + location.hash); } catch(e){}
+}
+function writeShareParamToUrl(token){
+  try { history.replaceState(null, '', location.pathname + '?share=' + encodeURIComponent(token) + location.hash); } catch(e){}
+}
+
+function copyText(text){
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text)
+      .then(function(){ showToast('链接已复制到剪贴板 📋', 'success'); })
+      .catch(function(){ fallbackCopy(text); });
+  } else { fallbackCopy(text); }
+}
+function fallbackCopy(text){
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('链接已复制到剪贴板 📋', 'success');
+  } catch(e) { showToast('复制失败，请手动复制链接', 'warning'); }
+}
+
+/* ================== 排序工具 ================== */
+function applySort(list, table, getVal){
+  var st = sortState[table];
+  if (!st || !st.key || !st.dir) return list.slice();
+  var dir = st.dir === 'asc' ? 1 : -1;
+  return list.slice().sort(function(a, b){
+    var va = getVal(a, st.key);
+    var vb = getVal(b, st.key);
+    if (va < vb) return -1 * dir;
+    if (va > vb) return 1 * dir;
+    return 0;
+  });
+}
+function updateSortButtons(table){
+  document.querySelectorAll('.sort-btn[data-sort-table="' + table + '"]').forEach(function(btn){
+    var key = btn.getAttribute('data-sort-key');
+    var st = sortState[table];
+    btn.classList.toggle('active', st.key === key && !!st.dir);
+    btn.textContent = (st.key === key && st.dir === 'asc') ? '↑'
+                    : (st.key === key && st.dir === 'desc') ? '↓'
+                    : '↕';
+  });
+  document.querySelectorAll('th.sortable[data-sort-table="' + table + '"]').forEach(function(th){
+    var key = th.getAttribute('data-sort-key');
+    var st = sortState[table];
+    th.classList.toggle('active', st.key === key && !!st.dir);
+  });
+}
+function handleSortClick(table, key){
+  var st = sortState[table];
+  if (st.key !== key) { st.key = key; st.dir = 'asc'; }
+  else if (st.dir === 'asc') { st.dir = 'desc'; }
+  else if (st.dir === 'desc') { st.key = ''; st.dir = ''; }
+  else { st.dir = 'asc'; }
+  pageState[table].page = 1;
+  rerenderByTable(table);
+}
+function rerenderByTable(table){
+  if (table === 'products') renderProducts();
+  else if (table === 'inbound') renderInboundRecords();
+  else if (table === 'outbound') renderOutboundRecords();
+  else if (table === 'stock') renderStock();
+}
+
+/* ================== 分页工具 ================== */
+function getPaged(list, table){
+  var st = pageState[table];
+  var total = list.length;
+  var size = st.pageSize;
+  var pages = Math.max(1, Math.ceil(total / size));
+  if (st.page > pages) st.page = pages;
+  if (st.page < 1) st.page = 1;
+  var start = (st.page - 1) * size;
+  return { list: list.slice(start, start + size), total: total, pages: pages, page: st.page, size: size };
+}
+
+function renderPager(containerId, table, total, pages, page, size, onChange){
+  var box = document.getElementById(containerId);
+  if (!box) return;
+  if (total === 0) { box.innerHTML = ''; return; }
+
+  var html = '';
+  html += '<span class="pager-info">共 ' + total + ' 条 · 第 ' + page + ' / ' + pages + ' 页</span>';
+  html += '<span class="pager-btns">';
+  html += '<button ' + (page <= 1 ? 'disabled' : '') + ' data-pg="' + (page - 1) + '">上一页</button>';
+
+  var start = Math.max(1, page - 2);
+  var end = Math.min(pages, page + 2);
+  if (start > 1) {
+    html += '<button data-pg="1">1</button>';
+    if (start > 2) html += '<span style="padding:0 4px;color:#aab2bf;">…</span>';
+  }
+  for (var i = start; i <= end; i++) {
+    html += '<button class="' + (i === page ? 'active' : '') + '" data-pg="' + i + '">' + i + '</button>';
+  }
+  if (end < pages) {
+    if (end < pages - 1) html += '<span style="padding:0 4px;color:#aab2bf;">…</span>';
+    html += '<button data-pg="' + pages + '">' + pages + '</button>';
+  }
+
+  html += '<button ' + (page >= pages ? 'disabled' : '') + ' data-pg="' + (page + 1) + '">下一页</button>';
+  html += '</span>';
+  html += '<span>每页 <select data-ps="1">';
+  [10, 20, 50, 100, 200].forEach(function(n){
+    html += '<option value="' + n + '"' + (n === size ? ' selected' : '') + '>' + n + '</option>';
+  });
+  html += '</select> 条</span>';
+
+  box.innerHTML = html;
+
+  box.querySelectorAll('button[data-pg]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var p = parseInt(this.getAttribute('data-pg'), 10);
+      if (!p || p === pageState[table].page) return;
+      pageState[table].page = p;
+      onChange();
+    });
+  });
+  var sel = box.querySelector('select[data-ps]');
+  if (sel) {
+    sel.addEventListener('change', function(){
+      pageState[table].pageSize = parseInt(this.value, 10) || 20;
+      pageState[table].page = 1;
+      onChange();
+    });
+  }
+}
+
+/* ================== Toast ================== */
+function showToast(message, type){
+  type = type || 'info';
+  var c = document.getElementById('toastContainer');
+  var t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  var icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
+  t.innerHTML = (icons[type] || 'ℹ️') + ' ' + message;
+  c.appendChild(t);
+  setTimeout(function(){
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(40px)';
+    t.style.transition = '0.3s ease';
+    setTimeout(function(){ t.remove(); }, 350);
+  }, 2800);
+}
+
+/* ================== 登录/注册 UI ================== */
+function switchAuthTab(name){
+  document.querySelectorAll('.auth-tab').forEach(function(b){
+    b.classList.toggle('active', b.dataset.auth === name);
+  });
+  document.getElementById('loginForm').classList.toggle('active', name === 'login');
+  document.getElementById('registerForm').classList.toggle('active', name === 'register');
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('registerError').textContent = '';
+  var ft = document.getElementById('authFooterText');
+  var fl = document.getElementById('authFooterLink');
+  if (name === 'login') {
+    ft.textContent = '还没有账号？'; fl.textContent = '立即注册';
+    fl.onclick = function(){ switchAuthTab('register'); };
+  } else {
+    ft.textContent = '已有账号？'; fl.textContent = '返回登录';
+    fl.onclick = function(){ switchAuthTab('login'); };
+  }
+  setTimeout(function(){
+    var i = document.querySelector('#' + (name === 'login' ? 'loginForm' : 'registerForm') + ' input');
+    if (i) i.focus();
+  }, 50);
+}
+
+/* ================== 注册/登录/退出 ================== */
+function handleRegister(e){
+  e.preventDefault();
+  var username = document.getElementById('regUsername').value.trim();
+  var pwd = document.getElementById('regPassword').value;
+  var pwd2 = document.getElementById('regPassword2').value;
+  var errEl = document.getElementById('registerError');
+  var btn = document.getElementById('registerBtn');
+  errEl.textContent = '';
+  if (username.length < 2 || username.length > 20) { errEl.textContent = '用户名长度需为 2-20 个字符'; return; }
+  if (!/^[\u4e00-\u9fa5A-Za-z0-9_]+$/.test(username)) { errEl.textContent = '用户名只能包含中文、字母、数字和下划线'; return; }
+  if (pwd.length < 6) { errEl.textContent = '密码长度至少 6 位'; return; }
+  if (pwd !== pwd2) { errEl.textContent = '两次输入的密码不一致'; return; }
+
+  btn.disabled = true; btn.textContent = '注册中...';
+  api.post('/api/auth/register', { username: username, password: pwd })
+    .then(function(user){
+      document.getElementById('registerForm').reset();
+      return loginSuccess(user, '注册成功，已自动登录 🎉');
+    })
+    .catch(function(err){ errEl.textContent = err.message; })
+    .then(function(){ btn.disabled = false; btn.textContent = '注 册'; });
+}
+
+function handleLogin(e){
+  e.preventDefault();
+  var username = document.getElementById('loginUsername').value.trim();
+  var pwd = document.getElementById('loginPassword').value;
+  var errEl = document.getElementById('loginError');
+  var btn = document.getElementById('loginBtn');
+  errEl.textContent = '';
+  if (!username || !pwd) { errEl.textContent = '请输入用户名和密码'; return; }
+
+  btn.disabled = true; btn.textContent = '登录中...';
+  api.post('/api/auth/login', { username: username, password: pwd })
+    .then(function(user){
+      document.getElementById('loginForm').reset();
+      return loginSuccess(user, '欢迎回来，' + user.username + '！');
+    })
+    .catch(function(err){ errEl.textContent = err.message; })
+    .then(function(){ btn.disabled = false; btn.textContent = '登 录'; });
+}
+
+function loginSuccess(user, msg){
+  currentUser = user;
+  shareToken = null; shareMeta = null;
+  return enterApp().then(function(){ if (msg) showToast(msg, 'success'); });
+}
+
+function enterApp(){
+  document.body.classList.remove('share-mode');
+  clearShareParamFromUrl();
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('appMain').classList.add('show');
+  document.getElementById('userNameDisplay').textContent = currentUser.username;
+  document.getElementById('userAvatar').textContent = String(currentUser.username).charAt(0).toUpperCase() || 'U';
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelector('.tab-btn[data-tab="tabProducts"]').classList.add('active');
+  document.getElementById('tabProducts').classList.add('active');
+  return refreshAll();
+}
+
+function showAuthScreen(){
+  document.getElementById('appMain').classList.remove('show');
+  document.getElementById('authScreen').classList.remove('hidden');
+  switchAuthTab('login');
+  setTimeout(function(){
+    var el = document.getElementById('loginUsername');
+    if (el) el.focus();
+  }, 80);
+}
+
+function handleLogout(){
+  if (!confirm('确定要退出登录吗？')) return;
+  api.post('/api/auth/logout').catch(function(){}).then(function(){
+    currentUser = null;
+    appData = { products: [], inboundRecords: [], outboundRecords: [] };
+    showAuthScreen();
+    showToast('已退出登录', 'info');
+  });
+}
+
+function tryRestoreSession(){
+  return fetch('/api/auth/me', { credentials: 'include' })
+    .then(function(res){ return res.ok ? res.json() : null; })
+    .catch(function(){ return null; });
+}
+
+/* ================== 数据拉取 ================== */
+function fetchAllData(){
+  return Promise.all([
+    api.get('/api/products'),
+    api.get('/api/records/inbound'),
+    api.get('/api/records/outbound')
+  ]).then(function(arr){
+    appData = {
+      products: arr[0] || [],
+      inboundRecords: arr[1] || [],
+      outboundRecords: arr[2] || []
+    };
+  });
+}
+
+/* ================== 分享模式 ================== */
+function fetchShareData(token){
+  return fetch('/api/share/' + encodeURIComponent(token), { credentials: 'include' })
+    .then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(data){
+        if (!res.ok) throw new Error(data.error || '无法加载分享数据');
+        return data;
+      });
+    });
+}
+
+function applyShareData(data){
+  shareMeta = data;
+  appData = {
+    products: data.products || [],
+    inboundRecords: data.inboundRecords || [],
+    outboundRecords: data.outboundRecords || []
+  };
+  document.getElementById('shareOwnerName').textContent = (data.owner && data.owner.username) || '—';
+  renderAll();
+}
+
+function refreshShareData(){
+  if (!shareToken) return Promise.resolve();
+  return fetchShareData(shareToken).then(function(d){ applyShareData(d); })
+    .catch(function(e){ showToast(e.message, 'error'); });
+}
+
+function enterShareMode(token){
+  return fetchShareData(token).then(function(data){
+    shareToken = token;
+    currentUser = null;
+    shareMeta = data;
+    document.body.classList.add('share-mode');
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('appMain').classList.add('show');
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelector('.tab-btn[data-tab="tabProducts"]').classList.add('active');
+    document.getElementById('tabProducts').classList.add('active');
+    applyShareData(data);
+    writeShareParamToUrl(token);
+    var on = (data.owner && data.owner.username) || '对方';
+    showToast('已进入只读模式，正在查看「' + on + '」的数据', 'info');
+  }).catch(function(e){
+    showToast(e.message, 'error');
+    clearShareParamFromUrl();
+    return tryRestoreSession().then(function(me){
+      if (me) { currentUser = me; return enterApp(); }
+      showAuthScreen();
+    });
+  });
+}
+
+function exitShareMode(){
+  if (!confirm('确定退出查看分享数据吗？')) return;
+  shareToken = null; shareMeta = null;
+  appData = { products: [], inboundRecords: [], outboundRecords: [] };
+  document.body.classList.remove('share-mode');
+  clearShareParamFromUrl();
+  tryRestoreSession().then(function(me){
+    if (me) {
+      currentUser = me;
+      return enterApp().then(function(){ showToast('已退出查看，回到你的数据', 'info'); });
+    }
+    currentUser = null;
+    document.getElementById('appMain').classList.remove('show');
+    showAuthScreen();
+    showToast('已退出查看', 'info');
+  });
+}
+
+function submitShareTokenInline(){
+  var input = document.getElementById('shareTokenInlineInput');
+  var raw = (input.value || '').trim();
+  if (!raw) { showToast('请输入分享码或链接', 'warning'); input.focus(); return; }
+  var m = raw.match(/[?&]share=([A-Za-z0-9_\-]+)/);
+  var t = m ? m[1] : raw.replace(/\s+/g, '');
+  if (!t) { showToast('分享码无效', 'warning'); return; }
+  enterShareMode(t).then(function(){
+    input.value = '';
+  });
+}
+
+/* ================== 分享管理 ================== */
+function loadShares(){
+  if (!currentUser) return;
+  api.get('/api/shares').then(function(list){ renderShares(list || []); })
+    .catch(function(e){ showToast(e.message, 'error'); });
+}
+function renderShares(list){
+  var tbody = document.getElementById('shareTableBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">还没有创建分享链接</td></tr>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(s){
+    var expired = s.expireAt && s.expireAt < Date.now();
+    var active = s.enabled && !expired;
+    var statusTag;
+    if (!s.enabled) statusTag = '<span class="tag tag-out">已关闭</span>';
+    else if (expired) statusTag = '<span class="tag tag-warn">已过期</span>';
+    else statusTag = '<span class="tag tag-in">生效中</span>';
+    var expireText = s.expireAt ? formatTime(s.expireAt) : '永久有效';
+    var lastText = s.lastVisit ? formatTime(s.lastVisit) : '—';
+    html += '<tr>' +
+      '<td><div style="display:flex;flex-direction:column;gap:3px;align-items:center;">' +
+        '<code style="font-size:12px;color:var(--gray-dark);word-break:break-all;">' + escHtml(s.url) + '</code>' +
+        '<span class="text-muted" style="font-size:11px;">分享码：' + escHtml(s.token) + '</span>' +
+      '</div></td>' +
+      '<td>' + statusTag + '</td>' +
+      '<td>' + expireText + '</td>' +
+      '<td>' + (s.visitCount || 0) +
+        '<div class="text-muted" style="font-size:11px;">最近：' + lastText + '</div></td>' +
+      '<td><div class="actions">' +
+        '<span class="action-link edit-link" data-url="' + escHtml(s.url) + '" onclick="copyShareUrl(this)">复制链接</span>' +
+        '<span class="action-link edit-link" onclick="toggleShare(' + s.id + ',' + (active ? 0 : 1) + ')">' + (active ? '停用' : '启用') + '</span>' +
+        '<span class="action-link delete-link" onclick="deleteShare(' + s.id + ')">删除</span>' +
+      '</div></td></tr>';
+  });
+  tbody.innerHTML = html;
+}
+function createShare(){
+  if (!currentUser) return;
+  var days = parseInt(document.getElementById('shareExpire').value, 10) || 0;
+  api.post('/api/shares', { expireDays: days }).then(function(s){
+    showToast('分享链接已生成 ✅', 'success');
+    loadShares();
+    if (s && s.url) copyText(s.url);
+  }).catch(function(e){ showToast(e.message, 'error'); });
+}
+function copyShareUrl(el){
+  var url = el.getAttribute('data-url') || '';
+  if (url) copyText(url);
+}
+function toggleShare(id, enabled){
+  api.put('/api/shares/' + id, { enabled: !!enabled }).then(function(){
+    showToast(enabled ? '分享已启用 ✅' : '分享已停用 🚫', 'success');
+    loadShares();
+  }).catch(function(e){ showToast(e.message, 'error'); });
+}
+function deleteShare(id){
+  if (!confirm('确定要删除该分享链接吗？删除后持有链接的人将无法再访问。')) return;
+  api.del('/api/shares/' + id).then(function(){
+    showToast('分享已删除 🗑️', 'success');
+    loadShares();
+  }).catch(function(e){ showToast(e.message, 'error'); });
+}
+
+/* ================== 可输入下拉（Combo）================== */
+function getComboCtx(which){
+  if (which === 'inbound') {
+    return {
+      comboId: 'inboundProductCombo',
+      inputId: 'inboundProductInput',
+      panelId: 'inboundProductPanel',
+      selectId: 'inboundProduct'
+    };
+  }
+  return {
+    comboId: 'outboundProductCombo',
+    inputId: 'outboundProductInput',
+    panelId: 'outboundProductPanel',
+    selectId: 'outboundProduct'
+  };
+}
+
+function closeAllCombos(){
+  document.querySelectorAll('.combo.open').forEach(function(c){ c.classList.remove('open'); });
+  openComboId = null;
+}
+
+function openCombo(which){
+  var ctx = getComboCtx(which);
+  closeAllCombos();
+  var combo = document.getElementById(ctx.comboId);
+  combo.classList.add('open');
+  openComboId = which;
+  renderComboPanel(which);
+}
+
+function renderComboPanel(which){
+  var ctx = getComboCtx(which);
+  var input = document.getElementById(ctx.inputId);
+  var panel = document.getElementById(ctx.panelId);
+  var kw = (input.value || '').trim().toLowerCase();
+  var list = appData.products;
+  if (kw) list = list.filter(function(p){ return (p.name || '').toLowerCase().indexOf(kw) >= 0; });
+
+  if (!list.length) {
+    panel.innerHTML = '<div class="combo-empty">' + (kw ? '未找到匹配商品' : '暂无商品') + '</div>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(p){
+    html += '<div class="combo-item" data-pid="' + escHtml(String(p.id)) + '" data-pname="' + escHtml(p.name) + '">' +
+      '<span>' + escHtml(p.name) + '</span>' +
+      '<span class="c-stock">库存 ' + p.stock + ' ' + escHtml(p.unit || '') + '</span>' +
+    '</div>';
+  });
+  panel.innerHTML = html;
+}
+
+function selectComboItem(which, pid, pname){
+  var ctx = getComboCtx(which);
+  var input = document.getElementById(ctx.inputId);
+  var select = document.getElementById(ctx.selectId);
+  input.value = pname;
+  var found = false;
+  for (var i = 0; i < select.options.length; i++) {
+    if (String(select.options[i].value) === String(pid)) { found = true; break; }
+  }
+  if (!found) {
+    var opt = document.createElement('option');
+    opt.value = pid; opt.textContent = pname;
+    select.appendChild(opt);
+  }
+  select.value = pid;
+  closeAllCombos();
+}
+
+function clearComboSelection(which){
+  var ctx = getComboCtx(which);
+  document.getElementById(ctx.selectId).value = '';
+}
+
+function syncComboFromSelect(which){
+  var ctx = getComboCtx(which);
+  var select = document.getElementById(ctx.selectId);
+  var input = document.getElementById(ctx.inputId);
+  var pid = select.value;
+  if (!pid) { input.value = ''; return; }
+  var p = appData.products.find(function(x){ return String(x.id) === String(pid); });
+  if (p) input.value = p.name;
+}
+
+/* ================== 渲染 ================== */
+function renderAll(){
+  renderProducts();
+  renderInboundRecords();
+  renderOutboundRecords();
+  renderStock();
+  populateProductSelects();
+  updateStats();
+}
+
+function renderProducts(){
+  if (!canViewData()) return;
+  var share = isShareMode();
+  var cols = share ? 4 : 5;
+  var search = document.getElementById('productSearch').value.trim().toLowerCase();
+  var list = appData.products;
+  if (search) list = list.filter(function(p){ return p.name.toLowerCase().indexOf(search) >= 0; });
+  list = applySort(list, 'products', function(p, key){
+    if (key === 'minStock') return Number(p.minStock) || 0;
+    return 0;
+  });
+  var pg = getPaged(list, 'products');
+  var tbody = document.getElementById('productTableBody');
+  if (!pg.total) {
+    tbody.innerHTML = '<tr><td colspan="' + cols + '" class="text-center text-muted">' +
+      (search ? '未找到匹配商品' : '暂无商品') + '</td></tr>';
+  } else {
+    var html = '';
+    pg.list.forEach(function(p, idx){
+      var seq = (pg.page - 1) * pg.size + idx + 1;
+      html += '<tr>' +
+        '<td>' + seq + '</td>' +
+        '<td><strong>' + escHtml(p.name) + '</strong></td>' +
+        '<td>' + escHtml(p.unit) + '</td>' +
+        '<td>' + p.minStock + '</td>';
+      if (!share) {
+        html += '<td><div class="actions">' +
+          '<span class="action-link edit-link" onclick="showEditProductModal(\'' + p.id + '\')">编辑</span>' +
+          '<span class="action-link delete-link" onclick="deleteProduct(\'' + p.id + '\')">删除</span>' +
+        '</div></td>';
+      }
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+  renderPager('productPager', 'products', pg.total, pg.pages, pg.page, pg.size, renderProducts);
+  updateSortButtons('products');
+}
+
+function populateProductSelects(){
+  if (!canViewData() || isShareMode()) return;
+  ['inbound','outbound'].forEach(function(which){
+    var ctx = getComboCtx(which);
+    var select = document.getElementById(ctx.selectId);
+    var cur = select.value;
+    select.innerHTML = '<option value=""></option>';
+    if (cur) {
+      var p = appData.products.find(function(x){ return String(x.id) === String(cur); });
+      if (p) {
+        var opt = document.createElement('option');
+        opt.value = p.id; opt.textContent = p.name;
+        select.appendChild(opt);
+        select.value = cur;
+      } else {
+        select.value = '';
+      }
+    }
+    syncComboFromSelect(which);
+    var input = document.getElementById(ctx.inputId);
+    if (input && !input.value) input.placeholder = '输入关键字快速筛选商品...';
+  });
+}
+
+function renderInboundRecords(){
+  if (!canViewData()) return;
+  var share = isShareMode();
+  var cols = share ? 7 : 8;
+  var records = appData.inboundRecords.slice();
+  records = applySort(records, 'inbound', function(r, key){
+    if (key === 'quantity') return Number(r.quantity) || 0;
+    if (key === 'price') return Number(r.price) || 0;
+    if (key === 'amount') return (Number(r.price) || 0) * (Number(r.quantity) || 0);
+    if (key === 'time') return Number(r.time) || 0;
+    return 0;
+  });
+  if (!sortState.inbound.key) {
+    records = records.sort(function(a,b){ return (b.time || 0) - (a.time || 0); });
+  }
+
+  var kw = (document.getElementById('inboundSearch').value || '').trim().toLowerCase();
+  if (kw) {
+    records = records.filter(function(r){
+      return (r.productName || '').toLowerCase().indexOf(kw) >= 0;
+    });
+  }
+
+  var pg = getPaged(records, 'inbound');
+  var tbody = document.getElementById('inboundTableBody');
+  if (!pg.total) {
+    tbody.innerHTML = '<tr><td colspan="' + cols + '" class="text-center text-muted">' +
+      (kw ? '未找到匹配记录' : '暂无入库记录') + '</td></tr>';
+  } else {
+    var html = '';
+    pg.list.forEach(function(r, idx){
+      var seq = (pg.page - 1) * pg.size + idx + 1;
+      var price = Number(r.price) || 0;
+      var amount = price * (Number(r.quantity) || 0);
+      html += '<tr>' +
+        '<td>' + seq + '</td>' +
+        '<td>' + escHtml(r.productName || '已删除') + '</td>' +
+        '<td><strong>+' + r.quantity + '</strong></td>' +
+        '<td>' + price.toFixed(2) + '</td>' +
+        '<td>' + amount.toFixed(2) + '</td>' +
+        '<td>' + formatTime(r.time) + '</td>' +
+        '<td>' + escHtml(r.remark || '-') + '</td>';
+      if (!share) {
+        html += '<td><span class="action-link delete-link" onclick="deleteInboundRecord(\'' + r.id + '\')">删除</span></td>';
+      }
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+  renderPager('inboundPager', 'inbound', pg.total, pg.pages, pg.page, pg.size, renderInboundRecords);
+
+  var tip = document.getElementById('inboundSearchTip');
+  if (tip) tip.textContent = kw ? ('匹配 ' + pg.total + ' 条记录') : '';
+  updateSortButtons('inbound');
+}
+
+function renderOutboundRecords(){
+  if (!canViewData()) return;
+  var share = isShareMode();
+  var cols = share ? 7 : 8;
+  var records = appData.outboundRecords.slice();
+  records = applySort(records, 'outbound', function(r, key){
+    if (key === 'quantity') return Number(r.quantity) || 0;
+    if (key === 'price') return Number(r.price) || 0;
+    if (key === 'amount') return (Number(r.price) || 0) * (Number(r.quantity) || 0);
+    if (key === 'time') return Number(r.time) || 0;
+    return 0;
+  });
+  if (!sortState.outbound.key) {
+    records = records.sort(function(a,b){ return (b.time || 0) - (a.time || 0); });
+  }
+
+  var kw = (document.getElementById('outboundSearch').value || '').trim().toLowerCase();
+  if (kw) {
+    records = records.filter(function(r){
+      return (r.productName || '').toLowerCase().indexOf(kw) >= 0;
+    });
+  }
+
+  var pg = getPaged(records, 'outbound');
+  var tbody = document.getElementById('outboundTableBody');
+  if (!pg.total) {
+    tbody.innerHTML = '<tr><td colspan="' + cols + '" class="text-center text-muted">' +
+      (kw ? '未找到匹配记录' : '暂无出库记录') + '</td></tr>';
+  } else {
+    var html = '';
+    pg.list.forEach(function(r, idx){
+      var seq = (pg.page - 1) * pg.size + idx + 1;
+      var price = Number(r.price) || 0;
+      var amount = price * (Number(r.quantity) || 0);
+      html += '<tr>' +
+        '<td>' + seq + '</td>' +
+        '<td>' + escHtml(r.productName || '已删除') + '</td>' +
+        '<td><strong class="stock-low">-' + r.quantity + '</strong></td>' +
+        '<td>' + price.toFixed(2) + '</td>' +
+        '<td>' + amount.toFixed(2) + '</td>' +
+        '<td>' + formatTime(r.time) + '</td>' +
+        '<td>' + escHtml(r.remark || '-') + '</td>';
+      if (!share) {
+        html += '<td><span class="action-link delete-link" onclick="deleteOutboundRecord(\'' + r.id + '\')">删除</span></td>';
+      }
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+  renderPager('outboundPager', 'outbound', pg.total, pg.pages, pg.page, pg.size, renderOutboundRecords);
+
+  var tip = document.getElementById('outboundSearchTip');
+  if (tip) tip.textContent = kw ? ('匹配 ' + pg.total + ' 条记录') : '';
+  updateSortButtons('outbound');
+}
+
+/* ===== 修改点 1：库存查看只显示有流水的商品 ===== */
+function renderStock(){
+  if (!canViewData()) return;
+  var search = document.getElementById('stockSearch').value.trim().toLowerCase();
+  /* 只显示有入库/出库流水的商品：库存为 0 且无任何流水的商品不出现 */
+  var list = appData.products.filter(function(p){
+    if (Number(p.stock) !== 0) return true;
+    var pid = String(p.id);
+    return appData.inboundRecords.some(function(r){ return String(r.productId) === pid; }) ||
+           appData.outboundRecords.some(function(r){ return String(r.productId) === pid; });
+  });
+  if (search) list = list.filter(function(p){ return p.name.toLowerCase().indexOf(search) >= 0; });
+  list = applySort(list, 'stock', function(p, key){
+    if (key === 'stock') return Number(p.stock) || 0;
+    if (key === 'minStock') return Number(p.minStock) || 0;
+    return 0;
+  });
+  var pg = getPaged(list, 'stock');
+  var tbody = document.getElementById('stockTableBody');
+  if (!pg.total) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">' +
+      (search ? '未找到匹配商品' : '暂无库存数据（商品尚未入库/出库）') + '</td></tr>';
+  } else {
+    var html = '';
+    pg.list.forEach(function(p, idx){
+      var seq = (pg.page - 1) * pg.size + idx + 1;
+      var low = p.stock <= p.minStock;
+      html += '<tr>' +
+        '<td>' + seq + '</td>' +
+        '<td><strong>' + escHtml(p.name) + '</strong></td>' +
+        '<td class="' + (low ? 'stock-low' : 'stock-normal') + '">' + p.stock + '</td>' +
+        '<td>' + p.minStock + '</td>' +
+        '<td>' + escHtml(p.unit) + '</td>' +
+        '<td>' + (low ? '<span class="tag tag-warn">⚠️ 低库存</span>' : '<span class="tag tag-in">✅ 正常</span>') + '</td>' +
+      '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+  renderPager('stockPager', 'stock', pg.total, pg.pages, pg.page, pg.size, renderStock);
+  updateSortButtons('stock');
+}
+
+/* ===== 修改点 2：低库存统计排除无流水的新商品 ===== */
+function updateStats(){
+  if (!canViewData()) return;
+  document.getElementById('statProducts').textContent = appData.products.length;
+  document.getElementById('statInbound').textContent = appData.inboundRecords.length;
+  document.getElementById('statOutbound').textContent = appData.outboundRecords.length;
+  /* 低库存统计：只统计有流水的商品，避免新添加、未入库的商品被误报 */
+  var low = appData.products.filter(function(p){
+    var pid = String(p.id);
+    var hasFlow = Number(p.stock) !== 0 ||
+      appData.inboundRecords.some(function(r){ return String(r.productId) === pid; }) ||
+      appData.outboundRecords.some(function(r){ return String(r.productId) === pid; });
+    return hasFlow && p.stock <= p.minStock;
+  }).length;
+  document.getElementById('statLowStock').textContent = low;
+  document.getElementById('exportStatProducts').textContent = appData.products.length;
+  document.getElementById('exportStatInbound').textContent = appData.inboundRecords.length;
+  document.getElementById('exportStatOutbound').textContent = appData.outboundRecords.length;
+}
+
+function refreshAll(){
+  if (isShareMode()) return refreshShareData();
+  if (!currentUser) return Promise.resolve();
+  return fetchAllData().then(function(){ renderAll(); })
+    .catch(function(e){ showToast(e.message, 'error'); });
+}
+
+/* ================== 商品增删改 ================== */
+function showAddProductModal(){
+  if (isShareMode()) { showToast('只读模式，无法添加商品', 'warning'); return; }
+  document.getElementById('modalTitle').textContent = '➕ 添加商品';
+  document.getElementById('editProductId').value = '';
+  document.getElementById('modalName').value = '';
+  document.getElementById('modalUnit').value = '';
+  document.getElementById('modalMinStock').value = '5';
+  document.getElementById('productModal').classList.add('show');
+  setTimeout(function(){ document.getElementById('modalName').focus(); }, 60);
+}
+function showEditProductModal(id){
+  if (isShareMode()) { showToast('只读模式，无法编辑商品', 'warning'); return; }
+  var p = appData.products.find(function(item){ return String(item.id) === String(id); });
+  if (!p) { showToast('商品不存在', 'error'); return; }
+  document.getElementById('modalTitle').textContent = '✏️ 编辑商品';
+  document.getElementById('editProductId').value = id;
+  document.getElementById('modalName').value = p.name || '';
+  document.getElementById('modalUnit').value = p.unit || '';
+  document.getElementById('modalMinStock').value = p.minStock || 5;
+  document.getElementById('productModal').classList.add('show');
+}
+function closeModal(){ document.getElementById('productModal').classList.remove('show'); }
+
+function saveProduct(){
+  if (isShareMode()) { showToast('只读模式，无法保存', 'warning'); return; }
+  var id = document.getElementById('editProductId').value;
+  var name = document.getElementById('modalName').value.trim();
+  var unit = document.getElementById('modalUnit').value.trim();
+  var minStock = parseInt(document.getElementById('modalMinStock').value, 10) || 0;
+  if (!name) { showToast('请输入商品名称', 'warning'); return; }
+  if (!unit) { showToast('请输入单位', 'warning'); return; }
+  if (minStock < 0) { showToast('最低库存不能为负数', 'warning'); return; }
+  var payload = { name: name, unit: unit, minStock: minStock };
+  var p = id ? api.put('/api/products/' + encodeURIComponent(id), payload)
+             : api.post('/api/products', payload);
+  p.then(function(){
+    showToast(id ? '商品已更新 ✅' : '商品添加成功 ✅', 'success');
+    closeModal();
+    return refreshAll();
+  }).catch(function(err){ showToast(err.message, 'error'); });
+}
+
+function deleteProduct(id){
+  if (isShareMode()) { showToast('只读模式，无法删除商品', 'warning'); return; }
+  var p = appData.products.find(function(item){ return String(item.id) === String(id); });
+  if (!p) { showToast('商品不存在', 'error'); return; }
+  if (!confirm('确定要删除商品「' + p.name + '」吗？该商品的全部入库/出库记录也会被删除。')) return;
+  api.del('/api/products/' + encodeURIComponent(id)).then(function(){
+    showToast('商品已删除 🗑️', 'success');
+    return refreshAll();
+  }).catch(function(err){ showToast(err.message, 'error'); });
+}
+
+/* ================== 一键清空 ================== */
+function confirmTwice(actionText){
+  if (!confirm('⚠️ 确定要' + actionText + '吗？此操作不可撤销！')) return false;
+  var token = '清空';
+  var input = prompt('为防误操作，请输入「' + token + '」两个字确认：');
+  if (input === null) return false;
+  if (String(input).trim() !== token) {
+    showToast('确认文字不正确，已取消', 'warning');
+    return false;
+  }
+  return true;
+}
+
+function clearProducts(){
+  if (isShareMode()) { showToast('只读模式，无法清空', 'warning'); return; }
+  if (!confirmTwice('清空【全部商品】及其所有入库/出库记录')) return;
+  showLoading(true);
+  api.post('/api/clear/products', {}).then(function(r){
+    showToast('已清空：商品 ' + r.products + ' 个，入库 ' + r.inbound + ' 条，出库 ' + r.outbound + ' 条', 'success');
+    pageState.products.page = 1;
+    pageState.inbound.page = 1;
+    pageState.outbound.page = 1;
+    pageState.stock.page = 1;
+    return refreshAll();
+  }).catch(function(e){ showToast(e.message, 'error'); })
+    .then(function(){ showLoading(false); });
+}
+
+function clearInboundRecords(){
+  if (isShareMode()) { showToast('只读模式，无法清空', 'warning'); return; }
+  if (!confirmTwice('清空【全部入库记录】')) return;
+  showLoading(true);
+  api.post('/api/clear/inbound', {}).then(function(r){
+    showToast('已清空入库记录 ' + r.deleted + ' 条', 'success');
+    pageState.inbound.page = 1;
+    return refreshAll();
+  }).catch(function(e){ showToast(e.message, 'error'); })
+    .then(function(){ showLoading(false); });
+}
+
+function clearOutboundRecords(){
+  if (isShareMode()) { showToast('只读模式，无法清空', 'warning'); return; }
+  if (!confirmTwice('清空【全部出库记录】')) return;
+  showLoading(true);
+  api.post('/api/clear/outbound', {}).then(function(r){
+    showToast('已清空出库记录 ' + r.deleted + ' 条', 'success');
+    pageState.outbound.page = 1;
+    return refreshAll();
+  }).catch(function(e){ showToast(e.message, 'error'); })
+    .then(function(){ showLoading(false); });
+}
+
+/* ================== 入库/出库 ================== */
+function handleInbound(){
+  if (isShareMode()) { showToast('只读模式，无法入库', 'warning'); return; }
+  var pid = document.getElementById('inboundProduct').value;
+  var qty = parseInt(document.getElementById('inboundQty').value, 10);
+  var price = parseFloat(document.getElementById('inboundPrice').value) || 0;
+  var remark = document.getElementById('inboundRemark').value.trim();
+  if (!pid) { showToast('请选择商品', 'warning'); return; }
+  if (!qty || qty <= 0) { showToast('请输入有效的入库数量 (>0)', 'warning'); return; }
+  if (price < 0) { showToast('单价不能为负数', 'warning'); return; }
+  api.post('/api/inbound', { productId: pid, quantity: qty, price: price, remark: remark }).then(function(){
+    showToast('✅ 入库成功', 'success');
+    document.getElementById('inboundQty').value = '';
+    document.getElementById('inboundPrice').value = '0';
+    document.getElementById('inboundRemark').value = '';
+    clearComboSelection('inbound');
+    document.getElementById('inboundProductInput').value = '';
+    pageState.inbound.page = 1;
+    return refreshAll();
+  }).catch(function(err){ showToast(err.message, 'error'); });
+}
+
+function handleOutbound(){
+  if (isShareMode()) { showToast('只读模式，无法出库', 'warning'); return; }
+  var pid = document.getElementById('outboundProduct').value;
+  var qty = parseInt(document.getElementById('outboundQty').value, 10);
+  var price = parseFloat(document.getElementById('outboundPrice').value) || 0;
+  var remark = document.getElementById('outboundRemark').value.trim();
+  if (!pid) { showToast('请选择商品', 'warning'); return; }
+  if (!qty || qty <= 0) { showToast('请输入有效的出库数量 (>0)', 'warning'); return; }
+  if (price < 0) { showToast('单价不能为负数', 'warning'); return; }
+  api.post('/api/outbound', { productId: pid, quantity: qty, price: price, remark: remark }).then(function(){
+    showToast('✅ 出库成功', 'success');
+    document.getElementById('outboundQty').value = '';
+    document.getElementById('outboundPrice').value = '0';
+    document.getElementById('outboundRemark').value = '';
+    clearComboSelection('outbound');
+    document.getElementById('outboundProductInput').value = '';
+    pageState.outbound.page = 1;
+    return refreshAll();
+  }).catch(function(err){ showToast(err.message, 'error'); });
+}
+
+function deleteInboundRecord(id){
+  if (isShareMode()) { showToast('只读模式，无法删除记录', 'warning'); return; }
+  if (!confirm('确定删除该入库记录吗？删除后库存会按流水重新汇总。')) return;
+  api.del('/api/records/inbound/' + encodeURIComponent(id)).then(function(){
+    showToast('入库记录已删除', 'success');
+    return refreshAll();
+  }).catch(function(err){ showToast(err.message, 'error'); });
+}
+
+function deleteOutboundRecord(id){
+  if (isShareMode()) { showToast('只读模式，无法删除记录', 'warning'); return; }
+  if (!confirm('确定删除该出库记录吗？删除后库存会按流水重新汇总。')) return;
+  api.del('/api/records/outbound/' + encodeURIComponent(id)).then(function(){
+    showToast('出库记录已删除', 'success');
+    return refreshAll();
+  }).catch(function(err){ showToast(err.message, 'error'); });
+}
+
+/* ================== Excel 导入 ================== */
+/* 方案 2：兼容 Excel 日期序列号 / 文本日期 / Date 对象 */
+function parseTime(str){
+  if (str === null || str === undefined || str === '') return Date.now();
+
+  if (typeof str === 'number' && isFinite(str)) {
+    var ms = Math.round((str - 25569) * 86400 * 1000);
+    if (!isNaN(ms) && ms > 0) return ms;
+  }
+  if (typeof str === 'string' && /^\d+(\.\d+)?$/.test(str.trim())) {
+    var n = parseFloat(str);
+    var ms2 = Math.round((n - 25569) * 86400 * 1000);
+    if (!isNaN(ms2) && ms2 > 0) return ms2;
+  }
+  if (str instanceof Date) {
+    var t = str.getTime();
+    if (!isNaN(t)) return t;
+  }
+  var s = String(str).trim().replace(/\//g, '-');
+  var d = new Date(s);
+  if (!isNaN(d.getTime())) return d.getTime();
+  d = new Date(str);
+  if (!isNaN(d.getTime())) return d.getTime();
+  return Date.now();
+}
+
+function toFloatSafe(v){
+  var n = parseFloat(v);
+  return isNaN(n) ? 0 : n;
+}
+
+function buildImportPayload(workbook){
+  var payload = { products: [], inbound: [], outbound: [] };
+  workbook.SheetNames.forEach(function(sheetName){
+    var sheet = workbook.Sheets[sheetName];
+    var rows = XLSX.utils.sheet_to_json(sheet);
+    if (!rows || !rows.length) return;
+    var lowerName = sheetName.toLowerCase();
+    var headers = Object.keys(rows[0]);
+
+    if (lowerName.indexOf('入库') >= 0) {
+      var n1 = headers.find(function(h){ return /商品名称|名称|商品|name/i.test(h); });
+      var q1 = headers.find(function(h){ return /数量|入库数量|qty/i.test(h); });
+      var t1 = headers.find(function(h){ return /时间|日期|time|date/i.test(h); });
+      var r1 = headers.find(function(h){ return /备注|remark|note/i.test(h); });
+      var p1 = headers.find(function(h){ return /单价|价格|price/i.test(h); });
+      if (!n1 || !q1) { showToast('工作表“' + sheetName + '”缺少“商品名称”或“数量”列，跳过', 'warning'); return; }
+      rows.forEach(function(row){
+        var name = String(row[n1] || '').trim();
+        var qty = parseInt(row[q1], 10);
+        if (!name || isNaN(qty) || qty <= 0) return;
+        payload.inbound.push({
+          name: name, quantity: qty,
+          price: p1 ? toFloatSafe(row[p1]) : 0,
+          time: t1 ? parseTime(row[t1]) : Date.now(),
+          remark: r1 ? String(row[r1] || '').trim() : ''
+        });
+      });
+    } else if (lowerName.indexOf('出库') >= 0) {
+      var n2 = headers.find(function(h){ return /商品名称|名称|商品|name/i.test(h); });
+      var q2 = headers.find(function(h){ return /数量|出库数量|qty/i.test(h); });
+      var t2 = headers.find(function(h){ return /时间|日期|time|date/i.test(h); });
+      var r2 = headers.find(function(h){ return /备注|remark|note/i.test(h); });
+      var p2 = headers.find(function(h){ return /单价|价格|price/i.test(h); });
+      if (!n2 || !q2) { showToast('工作表“' + sheetName + '”缺少“商品名称”或“数量”列，跳过', 'warning'); return; }
+      rows.forEach(function(row){
+        var name = String(row[n2] || '').trim();
+        var qty = parseInt(row[q2], 10);
+        if (!name || isNaN(qty) || qty <= 0) return;
+        payload.outbound.push({
+          name: name, quantity: qty,
+          price: p2 ? toFloatSafe(row[p2]) : 0,
+          time: t2 ? parseTime(row[t2]) : Date.now(),
+          remark: r2 ? String(row[r2] || '').trim() : ''
+        });
+      });
+    } else {
+      var n3 = headers.find(function(h){ return /名称|商品名|name/i.test(h); });
+      if (!n3) { showToast('工作表“' + sheetName + '”未找到“名称”列，跳过', 'warning'); return; }
+      var u3 = headers.find(function(h){ return /单位|unit/i.test(h); });
+      var m3 = headers.find(function(h){ return /最低库存|预警|minStock/i.test(h); });
+      rows.forEach(function(row){
+        var name = String(row[n3] || '').trim();
+        if (!name) return;
+        var unit = u3 ? String(row[u3] || '').trim() : '';
+        var minStock = m3 ? toFloatSafe(row[m3]) : 5;
+        payload.products.push({
+          name: name, unit: unit || '个',
+          minStock: Math.max(0, Math.floor(minStock))
+        });
+      });
+    }
+  });
+  return payload;
+}
+
+function submitImport(payload){
+  showLoading(true);
+  api.post('/api/import', payload).then(function(result){
+    var msg = '导入完成：新增商品 ' + result.added + '，更新 ' + result.updated +
+      '，跳过 ' + result.skipped + ' 行；入库记录 ' + result.inbound +
+      ' 条，出库记录 ' + result.outbound + ' 条。';
+    showToast(msg, 'success');
+    document.getElementById('importResult').textContent = msg;
+    return refreshAll();
+  }).catch(function(err){ showToast(err.message, 'error'); })
+    .then(function(){ showLoading(false); });
+}
+
+function handlePriceImport(event){
+  if (isShareMode()) { event.target.value = ''; showToast('只读模式，无法导入', 'warning'); return; }
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      var data = new Uint8Array(e.target.result);
+      var workbook = XLSX.read(data, { type: 'array' });
+      var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(firstSheet);
+      if (!rows || !rows.length) { showToast('Excel文件为空或格式不正确', 'error'); return; }
+      var headers = Object.keys(rows[0]);
+      var nameCol = headers.find(function(h){ return /名称|商品名|name/i.test(h); });
+      var unitCol = headers.find(function(h){ return /单位|unit/i.test(h); });
+      var minCol = headers.find(function(h){ return /最低库存|预警|minStock/i.test(h); });
+      if (!nameCol) { showToast('未找到"商品名"列', 'error'); return; }
+      var products = [];
+      rows.forEach(function(row){
+        var name = String(row[nameCol] || '').trim();
+        if (!name) return;
+        products.push({
+          name: name,
+          unit: unitCol ? String(row[unitCol] || '').trim() : '个',
+          minStock: minCol ? Math.max(0, Math.floor(toFloatSafe(row[minCol]))) : 5
+        });
+      });
+      submitImport({ products: products, inbound: [], outbound: [] });
+    } catch(err) {
+      showToast('读取Excel失败: ' + err.message, 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  event.target.value = '';
+}
+
+function handleFileUpload(event){
+  if (isShareMode()) { event.target.value = ''; showToast('只读模式，无法导入', 'warning'); return; }
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      var data = new Uint8Array(e.target.result);
+      var workbook = XLSX.read(data, { type: 'array' });
+      if (!workbook.SheetNames || !workbook.SheetNames.length) {
+        showToast('Excel 文件没有工作表', 'error'); return;
+      }
+      var payload = buildImportPayload(workbook);
+      var total = payload.products.length + payload.inbound.length + payload.outbound.length;
+      if (total === 0) { showToast('未解析到有效数据行，请检查列名', 'warning'); return; }
+      submitImport(payload);
+    } catch(err) {
+      showToast('读取Excel失败: ' + err.message, 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  document.getElementById('fileInput').value = '';
+}
+
+(function setupDragDrop(){
+  var zone = document.getElementById('uploadZone');
+  if (!zone) return;
+  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', function(e){ e.preventDefault(); zone.classList.remove('dragover'); });
+  zone.addEventListener('drop', function(e){
+    e.preventDefault(); zone.classList.remove('dragover');
+    if (isShareMode()) { showToast('只读模式，无法导入', 'warning'); return; }
+    var file = e.dataTransfer.files[0];
+    if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+      var input = document.getElementById('fileInput');
+      var dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      handleFileUpload({ target: input });
+    } else {
+      showToast('请上传 .xlsx 或 .xls 文件', 'warning');
+    }
+  });
+})();
+
+/* ================== 导出 ================== */
+function exportData(type){
+  if (!canViewData()) { showToast('暂无可导出的数据', 'warning'); return; }
+  try {
+    var wb = XLSX.utils.book_new();
+    var fileName = '库存数据';
+
+    if (type === 'stock' || type === 'all') {
+      var stockData = appData.products.map(function(p){
+        return {
+          '商品名称': p.name,
+          '当前库存': p.stock,
+          '最低库存': p.minStock,
+          '单位': p.unit,
+          '状态': p.stock <= p.minStock ? '低库存' : '正常'
+        };
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stockData), '库存');
+      if (type === 'stock') fileName = '库存列表';
+    }
+    if (type === 'inbound' || type === 'all') {
+      var inData = appData.inboundRecords.slice().sort(function(a,b){return b.time-a.time;}).map(function(r){
+        var price = Number(r.price) || 0;
+        return {
+          '商品名称': r.productName || '已删除',
+          '数量': r.quantity,
+          '单价': price,
+          '金额': Math.round(price * (Number(r.quantity) || 0) * 100) / 100,
+          '时间': formatTime(r.time),
+          '备注': r.remark || ''
+        };
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(inData), '入库记录');
+      if (type === 'inbound') fileName = '入库记录';
+    }
+    if (type === 'outbound' || type === 'all') {
+      var outData = appData.outboundRecords.slice().sort(function(a,b){return b.time-a.time;}).map(function(r){
+        var price = Number(r.price) || 0;
+        return {
+          '商品名称': r.productName || '已删除',
+          '数量': r.quantity,
+          '单价': price,
+          '金额': Math.round(price * (Number(r.quantity) || 0) * 100) / 100,
+          '时间': formatTime(r.time),
+          '备注': r.remark || ''
+        };
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(outData), '出库记录');
+      if (type === 'outbound') fileName = '出库记录';
+    }
+    if (type === 'all') fileName = '进销存全量数据';
+
+    XLSX.writeFile(wb, fileName + '_' + new Date().toISOString().slice(0,10) + '.xlsx');
+    showToast('📥 导出成功：' + fileName, 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('导出失败：' + err.message, 'error');
+  }
+}
+
+/* ================== Tab 切换 ================== */
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    this.classList.add('active');
+    var target = this.dataset.tab;
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById(target).classList.add('active');
+    if (target === 'tabProducts') renderProducts();
+    if (target === 'tabInbound') { populateProductSelects(); renderInboundRecords(); }
+    if (target === 'tabOutbound') { populateProductSelects(); renderOutboundRecords(); }
+    if (target === 'tabStock') renderStock();
+    if (target === 'tabImportExport') updateStats();
+    if (target === 'tabShare') loadShares();
+    closeAllCombos();
+  });
+});
+
+/* ================== 认证事件 ================== */
+document.querySelectorAll('.auth-tab').forEach(function(btn){
+  btn.addEventListener('click', function(){ switchAuthTab(this.dataset.auth); });
+});
+document.getElementById('loginForm').addEventListener('submit', handleLogin);
+document.getElementById('registerForm').addEventListener('submit', handleRegister);
+
+/* ================== 排序按钮事件（事件委托） ================== */
+document.addEventListener('click', function(e){
+  var sortBtn = e.target.closest('.sort-btn');
+  if (sortBtn) {
+    e.stopPropagation();
+    var table = sortBtn.getAttribute('data-sort-table');
+    var key = sortBtn.getAttribute('data-sort-key');
+    handleSortClick(table, key);
+    return;
+  }
+  var th = e.target.closest('th.sortable');
+  if (th) {
+    var t2 = th.getAttribute('data-sort-table');
+    var k2 = th.getAttribute('data-sort-key');
+    handleSortClick(t2, k2);
+  }
+});
+
+/* ================== Combo 事件 ================== */
+function bindCombo(which){
+  var ctx = getComboCtx(which);
+  var combo = document.getElementById(ctx.comboId);
+  var input = document.getElementById(ctx.inputId);
+  var panel = document.getElementById(ctx.panelId);
+
+  input.addEventListener('focus', function(){
+    openCombo(which);
+  });
+  input.addEventListener('input', function(){
+    var select = document.getElementById(ctx.selectId);
+    var pid = select.value;
+    if (pid) {
+      var p = appData.products.find(function(x){ return String(x.id) === String(pid); });
+      if (!p || p.name !== input.value) {
+        select.value = '';
+      }
+    }
+    if (openComboId !== which) openCombo(which);
+    else renderComboPanel(which);
+  });
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') { closeAllCombos(); input.blur(); }
+    if (e.key === 'Enter') {
+      var items = panel.querySelectorAll('.combo-item');
+      if (panel.style.display !== 'none' && items.length === 1) {
+        e.preventDefault();
+        selectComboItem(which, items[0].getAttribute('data-pid'), items[0].getAttribute('data-pname'));
+      }
+    }
+  });
+  panel.addEventListener('mousedown', function(e){
+    var item = e.target.closest('.combo-item');
+    if (!item) return;
+    e.preventDefault();
+    selectComboItem(which, item.getAttribute('data-pid'), item.getAttribute('data-pname'));
+    input.focus();
+  });
+  combo.addEventListener('click', function(e){
+    if (e.target === combo.querySelector('.combo-arrow')) {
+      input.focus();
+    }
+  });
+}
+bindCombo('inbound');
+bindCombo('outbound');
+
+document.addEventListener('mousedown', function(e){
+  if (!e.target.closest('.combo')) closeAllCombos();
+});
+
+/* ================== 其它事件 ================== */
+document.getElementById('productModal').addEventListener('click', function(e){
+  if (e.target === this) closeModal();
+});
+['modalName','modalUnit','modalMinStock'].forEach(function(id){
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') saveProduct(); });
+});
+document.getElementById('inboundQty').addEventListener('keydown', function(e){ if (e.key === 'Enter') handleInbound(); });
+document.getElementById('inboundPrice').addEventListener('keydown', function(e){ if (e.key === 'Enter') handleInbound(); });
+document.getElementById('outboundQty').addEventListener('keydown', function(e){ if (e.key === 'Enter') handleOutbound(); });
+document.getElementById('outboundPrice').addEventListener('keydown', function(e){ if (e.key === 'Enter') handleOutbound(); });
+
+var inlineInput = document.getElementById('shareTokenInlineInput');
+if (inlineInput) {
+  inlineInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') { e.preventDefault(); submitShareTokenInline(); }
+  });
+}
+
+/* ================== 全局暴露 ================== */
+window.showAddProductModal = showAddProductModal;
+window.showEditProductModal = showEditProductModal;
+window.deleteProduct = deleteProduct;
+window.handleInbound = handleInbound;
+window.handleOutbound = handleOutbound;
+window.deleteInboundRecord = deleteInboundRecord;
+window.deleteOutboundRecord = deleteOutboundRecord;
+window.handleFileUpload = handleFileUpload;
+window.handlePriceImport = handlePriceImport;
+window.exportData = exportData;
+window.closeModal = closeModal;
+window.saveProduct = saveProduct;
+window.renderProducts = renderProducts;
+window.renderInboundRecords = renderInboundRecords;
+window.renderOutboundRecords = renderOutboundRecords;
+window.renderStock = renderStock;
+window.refreshAll = refreshAll;
+window.handleLogout = handleLogout;
+window.switchAuthTab = switchAuthTab;
+window.submitShareTokenInline = submitShareTokenInline;
+window.enterShareMode = enterShareMode;
+window.exitShareMode = exitShareMode;
+window.loadShares = loadShares;
+window.createShare = createShare;
+window.copyShareUrl = copyShareUrl;
+window.toggleShare = toggleShare;
+window.deleteShare = deleteShare;
+window.populateProductSelects = populateProductSelects;
+window.clearProducts = clearProducts;
+window.clearInboundRecords = clearInboundRecords;
+window.clearOutboundRecords = clearOutboundRecords;
+
+/* ================== 初始化 ================== */
+(function initApp(){
+  var urlToken = getShareTokenFromUrl();
+  if (urlToken) {
+    enterShareMode(urlToken);
+    return;
+  }
+  tryRestoreSession().then(function(user){
+    if (user) {
+      currentUser = user;
+      return enterApp();
+    }
+    showAuthScreen();
+  });
+})();
+
+console.log('📦 赚大钱 · 服务端模式已启动（含只读分享 + 分页 + 记录搜索 + 日期兼容 + 一键清空 + 库存过滤）');
+})();
+</script>
+</body>
+</html>
